@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">HorizonChaseTurbo</string>
+    <string name="best_score">Best Score</string>
+    <string name="start_game">Start Game</string>
+
+    <string name="bg_dscr">Background image</string>
+    <string name="logo_dscr">Logo</string>
 </resources>
