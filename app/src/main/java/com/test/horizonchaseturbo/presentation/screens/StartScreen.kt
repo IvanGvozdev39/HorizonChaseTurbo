@@ -17,6 +17,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
@@ -28,18 +30,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.test.horizonchaseturbo.R
+import com.test.horizonchaseturbo.presentation.viewmodel.StartScreenViewModel
 
 @Composable
-fun StartScreen() {
+fun StartScreen(viewModel: StartScreenViewModel = hiltViewModel()) {
     val whiteColor = colorResource(id = R.color.white)
     val blackColor = colorResource(id = R.color.black)
     val redColor = colorResource(id = R.color.red)
 
+    val bestScore by viewModel.bestScore.observeAsState(0)
+
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        // Background Image
         Image(
             painter = painterResource(id = R.drawable.background),
             contentDescription = stringResource(id = R.string.bg_dscr),
@@ -63,7 +68,7 @@ fun StartScreen() {
             )
         }
 
-        Column( //todo: hide when no best score stored
+        Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .align(Alignment.Center)
@@ -76,7 +81,7 @@ fun StartScreen() {
                     .wrapContentSize(Alignment.Center)
             ) {
                 Text(
-                    text = "33",
+                    text = bestScore.toString(),
                     fontSize = 50.sp,
                     fontWeight = FontWeight.Black,
                     color = whiteColor,
