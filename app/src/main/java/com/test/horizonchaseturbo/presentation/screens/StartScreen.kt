@@ -17,6 +17,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -40,7 +41,7 @@ fun StartScreen(viewModel: StartScreenViewModel = hiltViewModel()) {
     val blackColor = colorResource(id = R.color.black)
     val redColor = colorResource(id = R.color.red)
 
-    val bestScore by viewModel.bestScore.observeAsState(0)
+    val bestScore by viewModel.bestScore.collectAsState()
 
     Box(
         modifier = Modifier.fillMaxSize()

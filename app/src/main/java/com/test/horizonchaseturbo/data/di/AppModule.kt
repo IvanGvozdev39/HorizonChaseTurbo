@@ -18,13 +18,13 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideSharedPreferences(@ApplicationContext context: Context): SharedPreferences {
-        return context.getSharedPreferences(DataConstants.SHARED_PREF_S, Context.MODE_PRIVATE)
+    fun provideContext(@ApplicationContext appContext: Context): Context {
+        return appContext
     }
 
     @Provides
     @Singleton
-    fun provideGameRepository(sharedPreferences: SharedPreferences): GameRepository {
-        return GameRepositoryImpl(sharedPreferences)
+    fun provideGameRepository(context: Context): GameRepository {
+        return GameRepositoryImpl(context)
     }
 }

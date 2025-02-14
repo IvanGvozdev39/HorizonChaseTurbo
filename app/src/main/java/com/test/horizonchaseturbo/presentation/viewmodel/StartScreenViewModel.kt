@@ -1,21 +1,21 @@
 package com.test.horizonchaseturbo.presentation.viewmodel
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.test.horizonchaseturbo.domain.usecases.GetBestScoreUseCase
+import com.test.horizonchaseturbo.domain.repository.GameRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class StartScreenViewModel @Inject constructor(
-    private val getBestScoreUseCase: GetBestScoreUseCase
+    private val repository: GameRepository
 ) : ViewModel() {
 
-    private val _bestScore = MutableLiveData<Int>()
-    val bestScore: LiveData<Int> get() = _bestScore
+    private val _bestScore = MutableStateFlow(0)
+    val bestScore: StateFlow<Int> get() = _bestScore
 
     init {
         fetchBestScore()
@@ -23,7 +23,14 @@ class StartScreenViewModel @Inject constructor(
 
     private fun fetchBestScore() {
         viewModelScope.launch {
-            _bestScore.value = getBestScoreUseCase.execute()
+            _bestScore.value = repository.getBestScore()
+        }
+    }
+
+    private fun setBestScore(newScore: Int) {
+        if (newScore > _bestScore.value) {
+            repository.setBestScore(newScore)
+            _bestScore.value = newScore
         }
     }
 }
