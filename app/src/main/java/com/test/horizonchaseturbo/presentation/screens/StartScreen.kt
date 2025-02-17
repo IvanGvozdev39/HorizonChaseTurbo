@@ -19,7 +19,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
@@ -32,11 +31,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.test.horizonchaseturbo.R
+import com.test.horizonchaseturbo.presentation.navigation.Navigation
+import com.test.horizonchaseturbo.presentation.navigation.Screen
 import com.test.horizonchaseturbo.presentation.viewmodel.StartScreenViewModel
 
 @Composable
-fun StartScreen(viewModel: StartScreenViewModel = hiltViewModel()) {
+fun StartScreen(navController: NavController,
+                viewModel: StartScreenViewModel = hiltViewModel()) {
     val whiteColor = colorResource(id = R.color.white)
     val blackColor = colorResource(id = R.color.black)
     val redColor = colorResource(id = R.color.red)
@@ -110,7 +113,9 @@ fun StartScreen(viewModel: StartScreenViewModel = hiltViewModel()) {
         }
 
         Button(
-            onClick = { /* TODO */ },
+            onClick = {
+                navController.navigate(route = Screen.GameScreen.route)
+            },
             colors = ButtonDefaults.buttonColors(containerColor = whiteColor),
             modifier = Modifier
                 .align(Alignment.BottomCenter)
@@ -132,5 +137,5 @@ fun StartScreen(viewModel: StartScreenViewModel = hiltViewModel()) {
 @Composable
 @Preview
 fun Prev() {
-    StartScreen()
+    Navigation()
 }
