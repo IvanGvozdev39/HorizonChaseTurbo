@@ -143,7 +143,7 @@ fun RoadMarkings(
         val lineWidth = with(density) { 15.dp.toPx() }
         val laneWidth = canvasWidth / lineCount
 
-        for (i in 0 until lineCount) {
+        (0 until lineCount).forEach{ i ->
             val laneStartX = laneWidth * i + (laneWidth - lineWidth) / 2
 
             val startYOffset = if (i % 2 == 0) 0f else markingHeightPx
