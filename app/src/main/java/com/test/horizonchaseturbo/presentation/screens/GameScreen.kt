@@ -33,39 +33,34 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.test.horizonchaseturbo.Constants
 import com.test.horizonchaseturbo.R
 import com.test.horizonchaseturbo.presentation.util.RoadMarkings
 import com.test.horizonchaseturbo.presentation.viewmodel.GameViewModel
 
 @Composable
 fun GameScreen(navController: NavController, viewModel: GameViewModel = hiltViewModel()) {
-    val playerLane by viewModel::playerLane
+    val playerXOffset by viewModel::playerXOffset
     val policeCars = viewModel.policeCars
     val density = LocalDensity.current
     val screenWidthDp = LocalConfiguration.current.screenWidthDp.dp
-    val laneWidthPx = with(density) { (screenWidthDp / 3).toPx() }
+    val lineCount = Constants.LANE_COUNT - 1
+    val lineWidth = with(density) { 15.dp.toPx() }
+    val laneWidthPx = with(density) { (screenWidthDp / lineCount).toPx() }
 
-    val lanePositions = listOf(
-        laneWidthPx * 0.75f,
-        laneWidthPx * 1.5f,
-        laneWidthPx * 2.25f
-    )
 
-    val lanePositionsPlayer = listOf(
-        -laneWidthPx * 0.75f,
-        0f,
-        laneWidthPx * 0.75f
-    )
 
-    val transition = updateTransition(targetState = playerLane, label = "laneSwitch")
+
+    val transition = updateTransition(targetState = playerXOffset, label = "offsetSwitch")
+
     val carOffsetX by transition.animateFloat(
         transitionSpec = { tween(durationMillis = 50, easing = LinearEasing) }, label = ""
-    ) { lane ->
-        lanePositionsPlayer[lane - 1]
+    ) { offset ->
+        offset
     }
 
     LaunchedEffect(Unit) {
-        viewModel.spawnPoliceCars(density).collect { newPoliceCar ->
+        viewModel.spawnPoliceCars(laneWidthPx = laneWidthPx, density).collect { newPoliceCar ->
             viewModel.addPoliceCar(newPoliceCar, density)
         }
     }
@@ -76,7 +71,8 @@ fun GameScreen(navController: NavController, viewModel: GameViewModel = hiltView
             .background(Color.Gray)
     ) {
         RoadMarkings(
-            lineCount = 4,
+            lineCount = Constants.LANE_COUNT - 1,
+            lineWidth = lineWidth,
             markingHeight = 101.dp,
             markingSpacing = 51.dp,
             speed = 3f,
@@ -108,7 +104,7 @@ fun GameScreen(navController: NavController, viewModel: GameViewModel = hiltView
         Canvas(modifier = Modifier.fillMaxSize()) {
             viewModel.updatePoliceCarPositions(size.height)
             policeCars.forEach { policeCar ->
-                val policeCarOffsetX = lanePositions[policeCar.lane - 1] - policeCarWidth / 2
+                val policeCarOffsetX = (size.width - policeCarWidth) / 2 + policeCar.offsetX
                 val policeCarOffsetY = policeCar.offsetY
                 withTransform({
                     scale(
@@ -125,6 +121,7 @@ fun GameScreen(navController: NavController, viewModel: GameViewModel = hiltView
             }
         }
 
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -138,7 +135,7 @@ fun GameScreen(navController: NavController, viewModel: GameViewModel = hiltView
                 modifier = Modifier
                     .size(90.dp)
                     .clickable {
-                        if (playerLane > 1) viewModel.movePlayerCarLeft()
+                        viewModel.movePlayerCarLeft(laneWidthPx)
                     }
             )
             Image(
@@ -147,7 +144,7 @@ fun GameScreen(navController: NavController, viewModel: GameViewModel = hiltView
                 modifier = Modifier
                     .size(90.dp)
                     .clickable {
-                        if (playerLane < 3) viewModel.movePlayerCarRight()
+                        viewModel.movePlayerCarRight(laneWidthPx)
                     }
             )
         }

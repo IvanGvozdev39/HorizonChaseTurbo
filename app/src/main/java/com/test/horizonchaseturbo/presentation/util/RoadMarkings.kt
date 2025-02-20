@@ -22,6 +22,7 @@ import com.test.horizonchaseturbo.R
 @Composable
 fun RoadMarkings(
     lineCount: Int,
+    lineWidth: Float,
     markingHeight: Dp,
     markingSpacing: Dp,
     speed: Float,
@@ -46,7 +47,6 @@ fun RoadMarkings(
     Canvas(modifier = modifier.fillMaxSize()) {
         val canvasWidth = size.width
         val canvasHeight = size.height
-        val lineWidth = with(density) { 15.dp.toPx() }
         val laneWidth = canvasWidth / lineCount
 
         (0 until lineCount).forEach{ i ->
