@@ -48,11 +48,7 @@ fun GameScreen(navController: NavController, viewModel: GameViewModel = hiltView
     val lineWidth = with(density) { 15.dp.toPx() }
     val laneWidthPx = with(density) { (screenWidthDp / lineCount).toPx() }
 
-
-
-
     val transition = updateTransition(targetState = playerXOffset, label = "offsetSwitch")
-
     val carOffsetX by transition.animateFloat(
         transitionSpec = { tween(durationMillis = 50, easing = LinearEasing) }, label = ""
     ) { offset ->
@@ -60,8 +56,8 @@ fun GameScreen(navController: NavController, viewModel: GameViewModel = hiltView
     }
 
     LaunchedEffect(Unit) {
-        viewModel.spawnPoliceCars(laneWidthPx = laneWidthPx, density).collect { newPoliceCar ->
-            viewModel.addPoliceCar(newPoliceCar, density)
+        viewModel.spawnPoliceCars(laneWidthPx = laneWidthPx, with(density) { (-200).dp.toPx() }).collect { newPoliceCar ->
+            viewModel.addPoliceCar(newPoliceCar, with(density) { 200.dp.toPx() })
         }
     }
 
@@ -120,7 +116,6 @@ fun GameScreen(navController: NavController, viewModel: GameViewModel = hiltView
                 }
             }
         }
-
 
         Row(
             modifier = Modifier
