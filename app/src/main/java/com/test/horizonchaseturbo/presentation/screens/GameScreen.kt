@@ -35,12 +35,15 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.test.horizonchaseturbo.Constants
 import com.test.horizonchaseturbo.R
+import com.test.horizonchaseturbo.presentation.navigation.Screen
 import com.test.horizonchaseturbo.presentation.util.RoadMarkings
 import com.test.horizonchaseturbo.presentation.viewmodel.GameViewModel
 
 @Composable
 fun GameScreen(navController: NavController, viewModel: GameViewModel = hiltViewModel()) {
     val playerXOffset by viewModel::playerXOffset
+    val carsPassedCounter by viewModel::carsPassedCounter
+    val gameOver by viewModel::gameOver
     val policeCars = viewModel.policeCars
     val density = LocalDensity.current
     val screenWidthDp = LocalConfiguration.current.screenWidthDp.dp
@@ -55,11 +58,22 @@ fun GameScreen(navController: NavController, viewModel: GameViewModel = hiltView
         offset
     }
 
-    LaunchedEffect(Unit) {
-        viewModel.spawnPoliceCars(laneWidthPx = laneWidthPx, with(density) { (-200).dp.toPx() }).collect { newPoliceCar ->
-            viewModel.addPoliceCar(newPoliceCar, with(density) { 200.dp.toPx() })
+    if (gameOver) {
+        LaunchedEffect(Unit) {
+            navController.navigate(Screen.GameOverScreen.route)
         }
     }
+
+
+    LaunchedEffect(Unit) {
+        viewModel.spawnPoliceCars(
+            laneWidthPx = laneWidthPx,
+            offsetY = with(density) { (-200).dp.toPx() }).collect { newPoliceCar ->
+            viewModel.addPoliceCar(newPoliceCar, with(density) { 240.dp.toPx() })
+        }
+    }
+
+
 
     Box(
         modifier = Modifier
@@ -98,7 +112,10 @@ fun GameScreen(navController: NavController, viewModel: GameViewModel = hiltView
         val policeCarWidth = policeCarHeight * policeCarAspectRatio
 
         Canvas(modifier = Modifier.fillMaxSize()) {
-            viewModel.updatePoliceCarPositions(size.height)
+            viewModel.updatePoliceCarPositions(
+                sizeHeight = size.height,
+                heightUntilPlayerCarCollision = size.height - with(density) { 380.dp.toPx() },
+                playerCarHeight = with(density) { 200.dp.toPx() })
             policeCars.forEach { policeCar ->
                 val policeCarOffsetX = (size.width - policeCarWidth) / 2 + policeCar.offsetX
                 val policeCarOffsetY = policeCar.offsetY

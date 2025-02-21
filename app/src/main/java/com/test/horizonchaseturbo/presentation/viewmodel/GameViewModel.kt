@@ -2,7 +2,9 @@ package com.test.horizonchaseturbo.presentation.viewmodel
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.test.horizonchaseturbo.Constants
@@ -19,7 +21,11 @@ import kotlin.random.Random
 class GameViewModel @Inject constructor() : ViewModel() {
     val policeCars = mutableStateListOf<PoliceCar>()
 
+    var carsPassedCounter by mutableIntStateOf(0)
+    var gameOver by mutableStateOf(false)
+
     var playerXOffset by mutableFloatStateOf(0f)
+    private var currentPlayerXOffset = 0f
     private val policeCarSpeed = 8f
 
     private fun calculateMaxOneWayMerge(laneCount: Int): Int {
@@ -32,13 +38,17 @@ class GameViewModel @Inject constructor() : ViewModel() {
     private val maxOneWayMerge = calculateMaxOneWayMerge(laneCount = Constants.LANE_COUNT)
 
     fun movePlayerCarLeft(laneWidthPx: Float) {
-        if (playerXOffset > -laneWidthPx * maxOneWayMerge)
+        if (playerXOffset > -laneWidthPx * maxOneWayMerge) {
             playerXOffset -= laneWidthPx
+            currentPlayerXOffset = playerXOffset
+        }
     }
 
     fun movePlayerCarRight(laneWidthPx: Float) {
-        if (playerXOffset < laneWidthPx * maxOneWayMerge)
+        if (playerXOffset < laneWidthPx * maxOneWayMerge) {
             playerXOffset += laneWidthPx
+            currentPlayerXOffset = playerXOffset
+        }
     }
 
     private fun getRandomOffset(laneWidthPx: Float): Float {
@@ -62,11 +72,13 @@ class GameViewModel @Inject constructor() : ViewModel() {
         }
     }
 
-    fun updatePoliceCarPositions(sizeHeight: Float) {
+    fun updatePoliceCarPositions(sizeHeight: Float, heightUntilPlayerCarCollision: Float, playerCarHeight: Float) {
         val carsToRemove = mutableListOf<PoliceCar>()
 
         policeCars.forEach { policeCar ->
             policeCar.offsetY += policeCarSpeed
+
+            checkForCollision(policeCar, heightUntilPlayerCarCollision, playerCarHeight)
 
             if (policeCar.offsetY > sizeHeight) {
                 carsToRemove.add(policeCar)
@@ -74,5 +86,16 @@ class GameViewModel @Inject constructor() : ViewModel() {
         }
 
         policeCars.removeAll(carsToRemove)
+    }
+
+    private fun checkForCollision(policeCar: PoliceCar, heightUntilPlayerCarCollision: Float, playerCarHeight: Float) {
+        if (policeCar.offsetY >= heightUntilPlayerCarCollision && currentPlayerXOffset == policeCar.offsetX &&
+            policeCar.offsetY < heightUntilPlayerCarCollision + playerCarHeight && !policeCar.hasCollided) {
+            policeCar.hasCollided = true
+            gameOver = true
+        } else if (policeCar.offsetY >= heightUntilPlayerCarCollision + playerCarHeight && !policeCar.passed) {
+            carsPassedCounter++
+            policeCar.passed = true
+        }
     }
 }

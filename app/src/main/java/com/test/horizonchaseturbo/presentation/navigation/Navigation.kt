@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.test.horizonchaseturbo.presentation.screens.GameOverScreen
 import com.test.horizonchaseturbo.presentation.screens.GameScreen
 import com.test.horizonchaseturbo.presentation.screens.StartScreen
 
@@ -17,6 +18,9 @@ fun Navigation() {
         }
         composable(route = Screen.GameScreen.route) {
             GameScreen(navController = navController)
+        }
+        composable(route = Screen.GameOverScreen.route) {
+            GameOverScreen(navController = navController)
         }
     }
 }
