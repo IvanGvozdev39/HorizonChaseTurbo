@@ -26,11 +26,4 @@ class StartScreenViewModel @Inject constructor(
             _bestScore.value = repository.getBestScore()
         }
     }
-
-    private fun setBestScore(newScore: Int) {
-        if (newScore > _bestScore.value) {
-            repository.setBestScore(newScore)
-            _bestScore.value = newScore
-        }
-    }
 }

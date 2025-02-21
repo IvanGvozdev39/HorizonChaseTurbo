@@ -1,10 +1,7 @@
 package com.test.horizonchaseturbo.presentation.screens
 
 import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.Canvas
@@ -20,39 +17,49 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.test.horizonchaseturbo.Constants
 import com.test.horizonchaseturbo.R
+import com.test.horizonchaseturbo.presentation.util.RoadMarkings
+import com.test.horizonchaseturbo.presentation.viewmodel.GameViewModel
 
 @Composable
-fun GameScreen(navController: NavController) {
-    var playerLane by remember { mutableIntStateOf(2) }
-    val transition = updateTransition(targetState = playerLane, label = "laneSwitch")
+fun GameScreen(navController: NavController, viewModel: GameViewModel = hiltViewModel()) {
+    val playerXOffset by viewModel::playerXOffset
+    val policeCars = viewModel.policeCars
+    val density = LocalDensity.current
+    val screenWidthDp = LocalConfiguration.current.screenWidthDp.dp
+    val lineCount = Constants.LANE_COUNT - 1
+    val lineWidth = with(density) { 15.dp.toPx() }
+    val laneWidthPx = with(density) { (screenWidthDp / lineCount).toPx() }
 
-    val laneWidth = LocalConfiguration.current.screenWidthDp.dp / 5
+    val transition = updateTransition(targetState = playerXOffset, label = "offsetSwitch")
     val carOffsetX by transition.animateFloat(
-        transitionSpec = {
-            tween(durationMillis = 100, easing = LinearEasing)
-        }, label = ""
-    ) { lane ->
-        (lane - 2) * laneWidth.value * 3.4f
+        transitionSpec = { tween(durationMillis = 50, easing = LinearEasing) }, label = ""
+    ) { offset ->
+        offset
     }
 
+    LaunchedEffect(Unit) {
+        viewModel.spawnPoliceCars(laneWidthPx = laneWidthPx, with(density) { (-200).dp.toPx() }).collect { newPoliceCar ->
+            viewModel.addPoliceCar(newPoliceCar, with(density) { 200.dp.toPx() })
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -60,7 +67,8 @@ fun GameScreen(navController: NavController) {
             .background(Color.Gray)
     ) {
         RoadMarkings(
-            lineCount = 4,
+            lineCount = Constants.LANE_COUNT - 1,
+            lineWidth = lineWidth,
             markingHeight = 101.dp,
             markingSpacing = 51.dp,
             speed = 3f,
@@ -84,6 +92,31 @@ fun GameScreen(navController: NavController) {
             )
         }
 
+        val policeCarImage = ImageBitmap.imageResource(id = R.drawable.police)
+        val policeCarHeight = with(density) { 119.dp.toPx() }
+        val policeCarAspectRatio = policeCarImage.width.toFloat() / policeCarImage.height.toFloat()
+        val policeCarWidth = policeCarHeight * policeCarAspectRatio
+
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            viewModel.updatePoliceCarPositions(size.height)
+            policeCars.forEach { policeCar ->
+                val policeCarOffsetX = (size.width - policeCarWidth) / 2 + policeCar.offsetX
+                val policeCarOffsetY = policeCar.offsetY
+                withTransform({
+                    scale(
+                        scaleX = policeCarWidth / policeCarImage.width,
+                        scaleY = policeCarHeight / policeCarImage.height,
+                        pivot = Offset(policeCarOffsetX, policeCarOffsetY)
+                    )
+                }) {
+                    drawImage(
+                        image = policeCarImage,
+                        topLeft = Offset(policeCarOffsetX, policeCarOffsetY)
+                    )
+                }
+            }
+        }
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -97,7 +130,7 @@ fun GameScreen(navController: NavController) {
                 modifier = Modifier
                     .size(90.dp)
                     .clickable {
-                        if (playerLane > 1) playerLane--
+                        viewModel.movePlayerCarLeft(laneWidthPx)
                     }
             )
             Image(
@@ -106,57 +139,9 @@ fun GameScreen(navController: NavController) {
                 modifier = Modifier
                     .size(90.dp)
                     .clickable {
-                        if (playerLane < 3) playerLane++
+                        viewModel.movePlayerCarRight(laneWidthPx)
                     }
             )
-        }
-    }
-}
-
-@Composable
-fun RoadMarkings(
-    lineCount: Int,
-    markingHeight: Dp,
-    markingSpacing: Dp,
-    speed: Float,
-    modifier: Modifier = Modifier
-) {
-    val infiniteTransition = rememberInfiniteTransition(label = "")
-    val density = LocalDensity.current
-    val markingHeightPx = with(density) { markingHeight.toPx() }
-    val markingSpacingPx = with(density) { markingSpacing.toPx() }
-
-    val offsetY by infiniteTransition.animateFloat(
-        initialValue = markingHeightPx + markingSpacingPx,
-        targetValue = 0f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = (1000 / speed).toInt(), easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ), label = ""
-    )
-
-    val markingColor = colorResource(id = R.color.white)
-
-    Canvas(modifier = modifier.fillMaxSize()) {
-        val canvasWidth = size.width
-        val canvasHeight = size.height
-        val lineWidth = with(density) { 15.dp.toPx() }
-        val laneWidth = canvasWidth / lineCount
-
-        (0 until lineCount).forEach{ i ->
-            val laneStartX = laneWidth * i + (laneWidth - lineWidth) / 2
-
-            val startYOffset = if (i % 2 == 0) 0f else markingHeightPx
-
-            var currentY = -offsetY + startYOffset
-            while (currentY < canvasHeight) {
-                drawRect(
-                    color = markingColor,
-                    topLeft = Offset(laneStartX, currentY),
-                    size = Size(lineWidth, markingHeightPx)
-                )
-                currentY += markingHeightPx + markingSpacingPx
-            }
         }
     }
 }

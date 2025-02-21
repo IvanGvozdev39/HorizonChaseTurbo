@@ -1,10 +1,10 @@
 package com.test.horizonchaseturbo.data.di
 
 import android.content.Context
-import android.content.SharedPreferences
-import com.test.horizonchaseturbo.data.DataConstants
 import com.test.horizonchaseturbo.data.repository.GameRepositoryImpl
 import com.test.horizonchaseturbo.domain.repository.GameRepository
+import com.test.horizonchaseturbo.domain.usecases.MovePlayerCarLeftUseCase
+import com.test.horizonchaseturbo.domain.usecases.MovePlayerCarRightUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -26,5 +26,17 @@ object AppModule {
     @Singleton
     fun provideGameRepository(context: Context): GameRepository {
         return GameRepositoryImpl(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideMovePlayerCarLeftUseCase(): MovePlayerCarLeftUseCase {
+        return MovePlayerCarLeftUseCase()
+    }
+
+    @Provides
+    @Singleton
+    fun provideMovePlayerCarRightUseCase(): MovePlayerCarRightUseCase {
+        return MovePlayerCarRightUseCase()
     }
 }
