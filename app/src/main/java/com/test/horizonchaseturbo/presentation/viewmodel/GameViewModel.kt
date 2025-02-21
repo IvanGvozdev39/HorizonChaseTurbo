@@ -3,7 +3,6 @@ package com.test.horizonchaseturbo.presentation.viewmodel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
@@ -19,7 +18,10 @@ import kotlin.random.Random
 
 @HiltViewModel
 class GameViewModel @Inject constructor() : ViewModel() {
-    val policeCars = mutableStateListOf<PoliceCar>()
+    private val _policeCars = mutableListOf<PoliceCar>()
+
+    val policeCars: List<PoliceCar>
+        get() = _policeCars
 
     var carsPassedCounter by mutableIntStateOf(0)
     var gameOver by mutableStateOf(false)
@@ -67,35 +69,48 @@ class GameViewModel @Inject constructor() : ViewModel() {
     }
 
     fun addPoliceCar(newPoliceCar: PoliceCar, minYOffset: Float) {
-        if (policeCars.none { it.offsetY - newPoliceCar.offsetY < minYOffset }) {
-            policeCars.add(newPoliceCar)
+        if (_policeCars.none { it.offsetY - newPoliceCar.offsetY < minYOffset }) {
+            _policeCars.add(newPoliceCar)
         }
     }
 
     fun updatePoliceCarPositions(sizeHeight: Float, heightUntilPlayerCarCollision: Float, playerCarHeight: Float) {
         val carsToRemove = mutableListOf<PoliceCar>()
 
-        policeCars.forEach { policeCar ->
-            policeCar.offsetY += policeCarSpeed
+        _policeCars.forEachIndexed { index, policeCar ->
+            _policeCars[index] = policeCar.copy(offsetY = policeCar.offsetY + policeCarSpeed)
 
-            checkForCollision(policeCar, heightUntilPlayerCarCollision, playerCarHeight)
+            checkForCollision(_policeCars[index], heightUntilPlayerCarCollision, playerCarHeight)
 
             if (policeCar.offsetY > sizeHeight) {
                 carsToRemove.add(policeCar)
             }
         }
 
-        policeCars.removeAll(carsToRemove)
+        _policeCars.removeAll(carsToRemove)
     }
 
     private fun checkForCollision(policeCar: PoliceCar, heightUntilPlayerCarCollision: Float, playerCarHeight: Float) {
-        if (policeCar.offsetY >= heightUntilPlayerCarCollision && currentPlayerXOffset == policeCar.offsetX &&
-            policeCar.offsetY < heightUntilPlayerCarCollision + playerCarHeight && !policeCar.hasCollided) {
-            policeCar.hasCollided = true
-            gameOver = true
+        val collisionDetected = policeCar.offsetY >= heightUntilPlayerCarCollision &&
+                currentPlayerXOffset == policeCar.offsetX &&
+                policeCar.offsetY < heightUntilPlayerCarCollision + playerCarHeight
+
+        val updatedPoliceCar = if (collisionDetected && !policeCar.hasCollided) {
+            policeCar.copy(hasCollided = true)
         } else if (policeCar.offsetY >= heightUntilPlayerCarCollision + playerCarHeight && !policeCar.passed) {
             carsPassedCounter++
-            policeCar.passed = true
+            policeCar.copy(passed = true)
+        } else {
+            policeCar
+        }
+
+        val index = _policeCars.indexOf(policeCar)
+        if (index != -1) {
+            _policeCars[index] = updatedPoliceCar
+        }
+
+        if (collisionDetected && !policeCar.hasCollided) {
+            gameOver = true
         }
     }
 }
