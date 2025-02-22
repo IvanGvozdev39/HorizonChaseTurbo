@@ -1,25 +1,30 @@
 package com.test.horizonchaseturbo.presentation.viewmodel
 
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.test.horizonchaseturbo.Constants
 import com.test.horizonchaseturbo.domain.model.PoliceCar
+import com.test.horizonchaseturbo.domain.repository.GameRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.random.Random
 
 @HiltViewModel
-class GameViewModel @Inject constructor() : ViewModel() {
+class GameViewModel @Inject constructor(
+    private val repository: GameRepository
+) : ViewModel() {
     private val _policeCars = mutableListOf<PoliceCar>()
-
     val policeCars: List<PoliceCar>
         get() = _policeCars
 
@@ -28,7 +33,7 @@ class GameViewModel @Inject constructor() : ViewModel() {
 
     var playerXOffset by mutableFloatStateOf(0f)
     private var currentPlayerXOffset = 0f
-    private val policeCarSpeed = 8f
+    private val policeCarSpeed = Constants.POLICE_CAR_SPEED
 
     private fun calculateMaxOneWayMerge(laneCount: Int): Int {
         if (laneCount < 5) {
@@ -38,6 +43,30 @@ class GameViewModel @Inject constructor() : ViewModel() {
     }
 
     private val maxOneWayMerge = calculateMaxOneWayMerge(laneCount = Constants.LANE_COUNT)
+
+    var timerValue by mutableIntStateOf(Constants.GAME_DURATION_SECS)
+        private set
+
+    private val _timerEnded = mutableStateOf(false)
+    val timerEnded: State<Boolean> get() = _timerEnded
+
+    fun startTimer() {
+        viewModelScope.launch {
+            while (timerValue > 0) {
+                delay(1000L)
+                timerValue--
+            }
+            if (timerValue == 0) {
+                if (repository.getBestScore() < carsPassedCounter)
+                    setBestScore(carsPassedCounter)
+                _timerEnded.value = true
+            }
+        }
+    }
+
+    private fun setBestScore(newBestScore: Int) {
+        repository.setBestScore(newBestScore)
+    }
 
     fun movePlayerCarLeft(laneWidthPx: Float) {
         if (playerXOffset > -laneWidthPx * maxOneWayMerge) {

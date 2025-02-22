@@ -6,4 +6,5 @@
     <string name="bg_dscr">Background image</string>
     <string name="logo_dscr">Logo</string>
     <string name="game_over">Game over</string>
+    <string name="score">score</string>
 </resources>
