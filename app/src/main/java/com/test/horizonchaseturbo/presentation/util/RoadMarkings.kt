@@ -14,9 +14,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.Dp
-import com.test.horizonchaseturbo.R
+import com.test.horizonchaseturbo.ui.theme.White100
 
 @Composable
 fun RoadMarkings(
@@ -41,7 +40,7 @@ fun RoadMarkings(
         ), label = ""
     )
 
-    val markingColor = colorResource(id = R.color.white)
+    val markingColor = White100
 
     Canvas(modifier = modifier.fillMaxSize()) {
         val canvasWidth = size.width

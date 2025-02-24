@@ -32,7 +32,6 @@ import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -48,6 +47,10 @@ import com.test.horizonchaseturbo.R
 import com.test.horizonchaseturbo.presentation.navigation.Screen
 import com.test.horizonchaseturbo.presentation.util.RoadMarkings
 import com.test.horizonchaseturbo.presentation.viewmodel.GameViewModel
+import com.test.horizonchaseturbo.ui.theme.Gray30
+import com.test.horizonchaseturbo.ui.theme.Gray50
+import com.test.horizonchaseturbo.ui.theme.Gray80
+import com.test.horizonchaseturbo.ui.theme.White100
 import com.test.horizonchaseturbo.ui.theme.sfProFamily
 import java.util.Locale
 
@@ -100,7 +103,7 @@ fun GameScreen(navController: NavController, viewModel: GameViewModel = hiltView
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(colorResource(id = R.color.light_gray))
+            .background(Gray80)
     ) {
 
         RoadMarkings(
@@ -169,13 +172,13 @@ fun GameScreen(navController: NavController, viewModel: GameViewModel = hiltView
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
                         .clip(RoundedCornerShape(50))
-                        .background(colorResource(id = R.color.gray))
+                        .background(Gray50)
                         .padding(8.dp)
                 ) {
                     Text(
                         text = String.format(Locale.US, "%02d:%02d", timerValue / 60, timerValue % 60),
                         style = TextStyle(
-                            color = colorResource(id = R.color.white),
+                            color = White100,
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Black,
                             fontFamily = sfProFamily,
@@ -188,7 +191,7 @@ fun GameScreen(navController: NavController, viewModel: GameViewModel = hiltView
                 Text(
                     text = carsPassedCounter.toString(),
                     style = TextStyle(
-                        color = colorResource(id = R.color.dark_gray),
+                        color = Gray30,
                         fontSize = 52.sp,
                         fontWeight = FontWeight.Black,
                         fontFamily = sfProFamily,
@@ -198,7 +201,7 @@ fun GameScreen(navController: NavController, viewModel: GameViewModel = hiltView
                 Text(
                     text = stringResource(id = R.string.score),
                     style = TextStyle(
-                        color = colorResource(id = R.color.dark_gray),
+                        color = Gray30,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Black,
                         fontFamily = sfProFamily,
