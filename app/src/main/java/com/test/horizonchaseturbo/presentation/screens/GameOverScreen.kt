@@ -9,19 +9,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
-import kotlinx.coroutines.delay
 import com.test.horizonchaseturbo.R
 import com.test.horizonchaseturbo.presentation.navigation.Screen
+import com.test.horizonchaseturbo.ui.theme.Black0
+import kotlinx.coroutines.delay
 
 @Composable
 fun GameOverScreen(navController: NavController) {
     Box(modifier = Modifier
         .fillMaxSize()
-        .background(color = colorResource(id = R.color.black))) {
+        .background(color = Black0)) {
         Image(painter = painterResource(id = R.drawable.gameover), contentDescription = stringResource(
             id = R.string.game_over
         ),

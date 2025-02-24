@@ -17,13 +17,13 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -36,15 +36,18 @@ import com.test.horizonchaseturbo.R
 import com.test.horizonchaseturbo.presentation.navigation.Navigation
 import com.test.horizonchaseturbo.presentation.navigation.Screen
 import com.test.horizonchaseturbo.presentation.viewmodel.StartScreenViewModel
+import com.test.horizonchaseturbo.ui.theme.Black0
+import com.test.horizonchaseturbo.ui.theme.Red40
+import com.test.horizonchaseturbo.ui.theme.White100
 
 @Composable
 fun StartScreen(navController: NavController,
                 viewModel: StartScreenViewModel = hiltViewModel()) {
-    val whiteColor = colorResource(id = R.color.white)
-    val blackColor = colorResource(id = R.color.black)
-    val redColor = colorResource(id = R.color.red)
-
     val bestScore by viewModel.bestScore.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.fetchBestScore()
+    }
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -81,14 +84,14 @@ fun StartScreen(navController: NavController,
                 modifier = Modifier
                     .height(66.dp)
                     .width(92.dp)
-                    .background(redColor)
+                    .background(Red40)
                     .wrapContentSize(Alignment.Center)
             ) {
                 Text(
                     text = bestScore.toString(),
                     fontSize = 50.sp,
                     fontWeight = FontWeight.Black,
-                    color = whiteColor,
+                    color = White100,
                     modifier = Modifier.align(Alignment.Center)
                 )
             }
@@ -99,14 +102,14 @@ fun StartScreen(navController: NavController,
                 modifier = Modifier
                     .height(49.dp)
                     .width(165.dp)
-                    .background(redColor)
+                    .background(Red40)
                     .wrapContentSize(Alignment.Center)
             ) {
                 Text(
                     text = stringResource(id = R.string.best_score),
                     fontSize = 23.sp,
                     fontWeight = FontWeight.Black,
-                    color = whiteColor,
+                    color = White100,
                     modifier = Modifier.align(Alignment.Center)
                 )
             }
@@ -116,7 +119,7 @@ fun StartScreen(navController: NavController,
             onClick = {
                 navController.navigate(route = Screen.GameScreen.route)
             },
-            colors = ButtonDefaults.buttonColors(containerColor = whiteColor),
+            colors = ButtonDefaults.buttonColors(containerColor = White100),
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
@@ -127,7 +130,7 @@ fun StartScreen(navController: NavController,
             Text(
                 text = stringResource(id = R.string.start_game).uppercase(),
                 fontSize = 23.sp,
-                color = blackColor,
+                color = Black0,
                 fontWeight = FontWeight.Black
             )
         }

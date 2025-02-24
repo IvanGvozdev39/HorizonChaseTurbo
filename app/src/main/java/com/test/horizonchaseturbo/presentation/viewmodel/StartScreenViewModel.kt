@@ -21,7 +21,7 @@ class StartScreenViewModel @Inject constructor(
         fetchBestScore()
     }
 
-    private fun fetchBestScore() {
+    fun fetchBestScore() {
         viewModelScope.launch {
             _bestScore.value = repository.getBestScore()
         }
